@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JULIENISNERD | About</title>
+    <meta name="description" content="Julien is an industrial designer pushing the boundaries of form, material, and emotion.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="about.css">
+</head>
+<body>
+    <div class="cursor"></div>
+
+    <nav class="nav">
+        <a href="index.html" class="logo" style="text-decoration:none; color:inherit;">JULIENISNERD.</a>
+        <div class="menu-links">
+            <a href="index.html">Work</a>
+            <a href="about.html" class="nav-active">About</a>
+            <a href="contact.html">Contact</a>
+        </div>
+    </nav>
+
+    <!-- HERO IMAGE -->
+    <section class="about-hero">
+        <div class="about-hero-img-wrapper">
+            <img src="" alt="Hero" class="about-hero-img" id="about-hero-img">
+            <div class="about-hero-placeholder" id="about-placeholder">
+                <span id="about-placeholder-text">JULIEN.</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- INTRO SECTION -->
+    <section class="about-intro">
+        <div class="about-intro-left">
+            <h1 class="about-name" id="about-name-display"></h1>
+        </div>
+        <div class="about-intro-right" id="about-bio-container">
+            <!-- Bio paragraphs injected by about.js -->
+        </div>
+    </section>
+
+    <!-- CAREER & EDUCATION -->
+    <section class="about-career">
+        <div class="about-career-header">
+            <h2 class="career-section-title">Career &amp; Education</h2>
+        </div>
+        <div class="career-list" id="career-list-display">
+            <!-- Career/Education items injected by about.js -->
+        </div>
+    </section>
+
+    <!-- AWARDS -->
+    <section class="about-awards">
+        <div class="about-career-header">
+            <h2 class="career-section-title">Awards &amp; Recognition</h2>
+        </div>
+        <div class="career-list" id="awards-list-display">
+            <!-- Award items injected by about.js -->
+        </div>
+    </section>
+
+    <!-- FOOTER CTA -->
+    <section class="about-footer">
+        <h2 class="about-footer-text">LET'S<br>CREATE.</h2>
+        <a href="contact.html" class="contact-btn">Get in Touch</a>
+    </section>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="data.js"></script>
+    <script src="about.js"></script>
+</body>
+</html>

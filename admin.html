@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JULIENISNERD | Admin Access</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            overflow-y: auto;
+            overflow-x: hidden;
+            background-color: #f5f5f5;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            cursor: auto;
+            min-height: 100vh;
+        }
+        .cursor { display: none; }
+
+        /* ── PASSWORD OVERLAY ── */
+        #password-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: #fff; display: flex; align-items: center; justify-content: center; z-index: 1000;
+        }
+        .password-box { text-align: center; }
+        .password-box h2 { font-weight: 300; margin-bottom: 30px; letter-spacing: 4px; font-size: 1rem; color: #888; }
+        .password-box input {
+            padding: 15px; font-size: 2rem; text-align: center;
+            margin-bottom: 20px; letter-spacing: 15px; border: none;
+            border-bottom: 1px solid #ddd; background: transparent; display: block; width: 200px; margin: 0 auto 30px;
+            font-family: 'Inter', sans-serif; outline: none;
+        }
+        .password-box input:focus { border-bottom-color: #111; }
+
+        /* ── ADMIN WRAPPER ── */
+        .admin-wrapper {
+            display: none;
+            width: 100%;
+            max-width: 1200px;
+            padding: 60px 40px;
+            gap: 40px;
+            flex-direction: column;
+        }
+        .admin-header {
+            display: flex;
+            align-items: baseline;
+            gap: 20px;
+            border-bottom: 1px solid #111;
+            padding-bottom: 20px;
+            margin-bottom: 10px;
+        }
+        .admin-header h1 { font-size: 1.8rem; font-weight: 300; letter-spacing: -1px; margin: 0; }
+        .admin-header span { font-size: 0.8rem; color: #999; letter-spacing: 2px; text-transform: uppercase; }
+        .export-btn {
+            margin-left: auto;
+            background: #000;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .export-btn:hover { background: #333; }
+        
+        /* 모달 (Export Data) */
+        .export-modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center;
+        }
+        .export-modal-content {
+            background: #fff; padding: 40px; width: 90vw; max-width: 800px; max-height: 90vh;
+            overflow-y: auto; text-align: left;
+        }
+        .export-modal h3 { font-weight: 300; margin-bottom: 20px; font-size: 1.2rem; }
+        .export-modal textarea {
+            width: 100%; height: 50vh; padding: 15px; font-family: monospace; font-size: 12px;
+            background: #f5f5f5; border: 1px solid #ddd; border-radius: 0; resize: vertical; margin-bottom: 20px;
+        }
+        .export-modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+
+        /* ── 2-COLUMN LAYOUT ── */
+        .admin-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: start;
+        }
+
+        /* ── LEFT: FORM PANEL ── */
+        .form-panel {
+            background: #fff;
+            padding: 40px;
+            border: 1px solid #eaeaea;
+        }
+        .panel-title {
+            font-size: 0.75rem;
+            font-weight: 500;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #999;
+            margin-bottom: 30px;
+        }
+        .form-group { margin-bottom: 22px; display: flex; flex-direction: column; }
+        label { margin-bottom: 7px; font-weight: 500; font-size: 0.75rem; color: #000; text-transform: uppercase; letter-spacing: 1px; }
+        input, textarea {
+            padding: 12px 14px;
+            border: 1px solid #e0e0e0;
+            font-family: inherit;
+            font-size: 0.95rem;
+            outline: none;
+            border-radius: 0;
+            background-color: #fafafa;
+            transition: border-color 0.2s, background-color 0.2s;
+        }
+        input:focus, textarea:focus { border-color: #111; background-color: #fff; }
+        input:disabled { background-color: #f0f0f0; color: #999; cursor: not-allowed; }
+        textarea { resize: vertical; min-height: 110px; }
+
+        /* Multi-image inputs */
+        .img-url-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .img-url-row input { flex: 1; margin: 0; }
+        .img-url-row .remove-img-btn {
+            width: 34px; height: 34px; flex-shrink: 0;
+            background: transparent; border: 1px solid #e0e0e0;
+            color: #bbb; cursor: pointer; font-size: 1rem;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.15s;
+        }
+        .img-url-row .remove-img-btn:hover { border-color: #e74c3c; color: #e74c3c; }
+        .img-url-row .img-mini-preview {
+            width: 34px; height: 34px; object-fit: cover;
+            border: 1px solid #e0e0e0; flex-shrink: 0; display: none;
+        }
+        .img-url-row.dragging { opacity: 0.5; background: #fafafa; }
+        .img-url-row.drag-over { border-top: 2px solid #111; }
+        .add-img-btn {
+            background: transparent; border: 1px dashed #ccc;
+            color: #999; padding: 10px; width: 100%;
+            font-family: 'Inter', sans-serif; font-size: 0.8rem;
+            letter-spacing: 1px; cursor: pointer; transition: all 0.2s;
+            text-transform: uppercase; margin-top: 4px;
+        }
+        .add-img-btn:hover { border-color: #111; color: #111; }
+
+        /* Form buttons */
+        .form-buttons { display: flex; gap: 10px; margin-top: 10px; }
+        .submit-btn {
+            flex: 1;
+            background-color: #111;
+            color: #fff;
+            padding: 16px;
+            border: none;
+            font-size: 0.8rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: background-color 0.2s;
+            font-family: 'Inter', sans-serif;
+            font-weight: 400;
+        }
+        .submit-btn:hover { background-color: #444; }
+        .cancel-btn {
+            background-color: transparent;
+            color: #999;
+            padding: 16px 20px;
+            border: 1px solid #ddd;
+            font-size: 0.8rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 400;
+            display: none;
+            transition: all 0.2s;
+        }
+        .cancel-btn:hover { border-color: #111; color: #111; }
+
+        #status-msg { margin-top: 14px; text-align: center; font-size: 0.85rem; font-weight: 400; min-height: 20px; }
+        .success { color: #27ae60; }
+        .error { color: #e74c3c; }
+
+        /* ── RIGHT: PROJECT LIST PANEL ── */
+        .list-panel {
+            background: #fff;
+            border: 1px solid #eaeaea;
+            overflow: hidden;
+        }
+        .list-panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px 30px;
+            border-bottom: 1px solid #eaeaea;
+        }
+        .list-panel-header .panel-title { margin-bottom: 0; }
+        #project-count { font-size: 0.75rem; color: #bbb; letter-spacing: 1px; }
+        #project-list { list-style: none; margin: 0; padding: 0; }
+        .project-item {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px 30px;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background-color 0.15s;
+        }
+        .project-item:last-child { border-bottom: none; }
+        .project-item:hover { background-color: #fafafa; }
+        .project-thumb {
+            width: 52px;
+            height: 52px;
+            object-fit: cover;
+            background: #f0f0f0;
+            flex-shrink: 0;
+            border: 1px solid #e8e8e8;
+        }
+        .project-info { flex: 1; min-width: 0; }
+        .project-info .proj-title {
+            font-size: 0.9rem;
+            font-weight: 400;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 3px;
+        }
+        .project-info .proj-meta { font-size: 0.72rem; color: #aaa; letter-spacing: 1px; }
+        .item-actions { display: flex; gap: 6px; flex-shrink: 0; }
+        .btn-edit, .btn-delete {
+            padding: 6px 14px;
+            font-size: 0.7rem;
+            font-family: 'Inter', sans-serif;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            border: 1px solid;
+            background: transparent;
+            transition: all 0.15s;
+        }
+        .btn-edit { border-color: #ccc; color: #555; }
+        .btn-edit:hover { border-color: #111; color: #111; }
+        .btn-delete { border-color: #e74c3c; color: #e74c3c; }
+        .btn-delete:hover { border-color: #c0392b; color: #c0392b; background: rgba(231,76,60,0.05); }
+
+        /* Drag & Drop */
+        .drag-handle {
+            font-size: 1rem; color: #ccc; cursor: grab;
+            padding: 4px 6px; user-select: none; flex-shrink: 0;
+        }
+        .drag-handle:hover { color: #999; }
+        .drag-handle:active { cursor: grabbing; }
+        .project-item.dragging { opacity: 0.35; background: #f8f8f8; }
+        .project-item.drag-over { border-top: 2px solid #111; }
+
+        .list-empty {
+            padding: 50px 30px;
+            text-align: center;
+            color: #ccc;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+        }
+
+        /* ── CUSTOM DELETE MODAL ── */
+        #delete-modal {
+            display: none;
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.4);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        #delete-modal.active { display: flex; }
+        .modal-box {
+            background: #fff;
+            padding: 50px 40px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+        .modal-box h3 { font-weight: 300; font-size: 1.3rem; margin-bottom: 12px; letter-spacing: -0.5px; }
+        .modal-box p { font-size: 0.85rem; color: #999; margin-bottom: 35px; line-height: 1.6; }
+        .modal-actions { display: flex; gap: 12px; }
+        .modal-confirm {
+            flex: 1; padding: 15px; background: #111; color: #fff;
+            border: none; font-family: 'Inter', sans-serif; font-size: 0.8rem;
+            letter-spacing: 2px; text-transform: uppercase; cursor: pointer;
+            transition: background 0.2s;
+        }
+        .modal-confirm:hover { background: #e74c3c; }
+        .modal-cancel {
+            flex: 1; padding: 15px; background: transparent; color: #999;
+            border: 1px solid #ddd; font-family: 'Inter', sans-serif; font-size: 0.8rem;
+            letter-spacing: 2px; text-transform: uppercase; cursor: pointer;
+            transition: all 0.2s;
+        }
+        .modal-cancel:hover { border-color: #111; color: #111; }
+
+        /* ── ABOUT EDITOR SECTION ── */
+        .about-editor-section {
+            border-top: 2px solid #111;
+            padding-top: 40px;
+        }
+        .about-section-header {
+            display: flex;
+            align-items: baseline;
+            gap: 16px;
+            margin-bottom: 36px;
+        }
+        .about-section-header h2 {
+            font-size: 1.2rem; font-weight: 300;
+            letter-spacing: -0.5px; margin: 0;
+        }
+        .about-section-header span {
+            font-size: 0.75rem; color: #aaa;
+            letter-spacing: 2px; text-transform: uppercase;
+        }
+        .about-editor-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+        /* Bio rows */
+        .bio-row {
+            display: flex; gap: 8px; margin-bottom: 8px; align-items: flex-start;
+        }
+        .bio-row textarea {
+            flex: 1; margin: 0; resize: vertical; min-height: 80px;
+        }
+        .bio-row .remove-img-btn { margin-top: 4px; }
+        /* Career rows */
+        .career-edit-row {
+            display: grid;
+            grid-template-columns: 80px 1fr 1fr 110px 36px;
+            gap: 8px;
+            margin-bottom: 8px;
+            align-items: center;
+        }
+        .career-edit-row input,
+        .career-edit-row select { margin: 0; }
+        .career-edit-row select {
+            height: 42px; border: 1px solid #e0e0e0;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.8rem; letter-spacing: 1px;
+            color: #555; background: #fff; padding: 0 10px;
+            cursor: pointer;
+        }
+        .about-save-row {
+            display: flex; align-items: center; gap: 16px; margin-top: 8px;
+        }
+        /* ── FOOTER NAV ── */
+        .admin-footer {
+            text-align: center;
+            padding-top: 10px;
+        }
+        .admin-footer a {
+            color: #aaa; text-decoration: none;
+            font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px;
+            transition: color 0.2s;
+        }
+        .admin-footer a:hover { color: #111; }
+    </style>
+</head>
+<body>
+
+    <!-- PASSWORD GATE -->
+    <div id="password-overlay">
+        <div class="password-box">
+            <h2>AUTHORIZATION REQUIRED</h2>
+            <input type="password" id="pw-input" placeholder="····" autofocus maxlength="4">
+            <button class="submit-btn" style="width:180px; margin: 0 auto;" onclick="checkPassword()">Enter System</button>
+        </div>
+    </div>
+
+    <!-- MAIN ADMIN PANEL -->
+    <div class="admin-wrapper" id="adminWrapper">
+        <div class="admin-header">
+            <h1>Admin Panel</h1>
+            <span>Work &amp; About Management</span>
+            <button class="export-btn" id="exportDataBtn">Export to data.js</button>
+        </div>
+
+        <div class="admin-columns">
+
+            <!-- LEFT: FORM -->
+            <div class="form-panel">
+                <p class="panel-title" id="form-mode-label">Add New Project</p>
+
+                <div class="form-group">
+                    <label>Project ID (e.g. watch, console)</label>
+                    <input type="text" id="p-id" placeholder="unique-id">
+                </div>
+                <div class="form-group">
+                    <label>Project Title</label>
+                    <input type="text" id="p-title">
+                </div>
+                <div class="form-group" style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                    <div style="display:flex;flex-direction:column;">
+                        <label>Released Year</label>
+                        <input type="text" id="p-year" placeholder="2024">
+                    </div>
+                    <div style="display:flex;flex-direction:column;">
+                        <label>Client</label>
+                        <input type="text" id="p-client" placeholder="Client Name">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Images <span style="font-weight:300;text-transform:none;letter-spacing:0;color:#aaa;">(첫 번째 = 갤러리 썸네일)</span></label>
+                    <div id="img-url-list">
+                        <!-- Injected by JS -->
+                    </div>
+                    <button type="button" class="add-img-btn" onclick="addImageField()">+ Add Image URL</button>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="p-concept"></textarea>
+                </div>
+
+
+                <div class="form-buttons">
+                    <button class="submit-btn" id="submit-btn" onclick="saveProject()">Publish Project</button>
+                    <button class="cancel-btn" id="cancel-btn" onclick="cancelEdit()">Cancel</button>
+                </div>
+                <p id="status-msg"></p>
+            </div>
+
+            <!-- RIGHT: PROJECT LIST -->
+            <div class="list-panel">
+                <div class="list-panel-header">
+                    <p class="panel-title" style="margin:0;">Existing Projects</p>
+                    <span id="project-count"></span>
+                </div>
+                <ul id="project-list">
+                    <li class="list-empty">Loading projects…</li>
+                </ul>
+            </div>
+
+        </div>
+
+        <!-- ════════════════════════════════════
+             ABOUT PAGE EDITOR
+        ════════════════════════════════════ -->
+        <div class="about-editor-section">
+            <div class="about-section-header">
+                <h2>About Page</h2>
+                <span>Profile &amp; Career</span>
+            </div>
+
+            <!-- Hero Image -->
+            <div class="form-group">
+                <label>Hero Image URL <span style="font-weight:300;text-transform:none;letter-spacing:0;color:#aaa;">(얼굴 또는 공간 이미지)</span></label>
+                <div class="img-url-row">
+                    <img class="img-mini-preview" id="about-hero-preview" src="" alt="">
+                    <input type="url" id="about-hero-url" placeholder="https://raw.githubusercontent.com/..." oninput="previewAboutHero(this.value)">
+                </div>
+            </div>
+
+            <!-- Name & Role -->
+            <div class="about-editor-grid">
+                <div class="form-group" style="margin:0;">
+                    <label>Name <span style="font-weight:300;text-transform:none;letter-spacing:0;color:#aaa;">(줄바꿈: 엔터)</span></label>
+                    <textarea id="about-name-input" rows="2" placeholder="JULIEN&#10;KIM."></textarea>
+                </div>
+                <div class="form-group" style="margin:0;">
+                    <label>Role / Title</label>
+                    <input type="text" id="about-role-input" placeholder="Industrial Designer">
+                </div>
+            </div>
+
+            <!-- Bio Paragraphs -->
+            <div class="form-group">
+                <label>Bio <span style="font-weight:300;text-transform:none;letter-spacing:0;color:#aaa;">(단락 단위 입력)</span></label>
+                <div id="about-bio-list"></div>
+                <button type="button" class="add-img-btn" onclick="addAboutBioField()">+ Add Paragraph</button>
+            </div>
+
+            <!-- Career & Education -->
+            <div class="form-group">
+                <label>Career &amp; Education</label>
+                <div style="display:grid;grid-template-columns:80px 1fr 1fr 120px 36px;gap:8px;margin-bottom:6px;">
+                    <span style="font-size:0.7rem;color:#aaa;letter-spacing:1px;text-transform:uppercase;">Year</span>
+                    <span style="font-size:0.7rem;color:#aaa;letter-spacing:1px;text-transform:uppercase;">Title</span>
+                    <span style="font-size:0.7rem;color:#aaa;letter-spacing:1px;text-transform:uppercase;">Organization</span>
+                    <span style="font-size:0.7rem;color:#aaa;letter-spacing:1px;text-transform:uppercase;">Tag</span>
+                    <span></span>
+                </div>
+                <div id="about-career-list"></div>
+                <button type="button" class="add-img-btn" onclick="addAboutCareerRow()">+ Add Entry</button>
+            </div>
+
+            <!-- Awards & Recognition -->
+            <div class="form-group">
+                <label>Awards &amp; Recognition</label>
+                <div style="display:grid;grid-template-columns:80px 1fr 1fr 36px;gap:8px;margin-bottom:6px;">
+                    <span style="font-size:0.7rem;color:#aaa;letter-spacing:1px;text-transform:uppercase;">Year</span>
+                    <span style="font-size:0.7rem;color:#aaa;letter-spacing:1px;text-transform:uppercase;">Award Name</span>
+                    <span style="font-size:0.7rem;color:#aaa;letter-spacing:1px;text-transform:uppercase;">Category / Org</span>
+                    <span></span>
+                </div>
+                <div id="about-awards-list"></div>
+                <button type="button" class="add-img-btn" onclick="addAboutAwardRow()">+ Add Award</button>
+            </div>
+
+            <!-- Save -->
+            <div class="about-save-row">
+                <button class="submit-btn" onclick="saveAboutAdmin()" style="width:auto;padding:14px 40px;">Save About Page</button>
+                <p id="about-status-msg" style="font-size:0.85rem;"></p>
+            </div>
+        </div>
+
+        <div class="admin-footer">
+            <a href="index.html">&larr; Return to Gallery</a>
+        </div>
+    </div>
+
+    <!-- DELETE CONFIRMATION MODAL -->
+    <div id="delete-modal">
+        <div class="modal-box">
+            <h3>Delete Project</h3>
+            <p id="modal-desc">This action cannot be undone.<br>The project will be permanently removed.</p>
+            <div class="modal-actions">
+                <button class="modal-cancel" onclick="closeDeleteModal()">Cancel</button>
+                <button class="modal-confirm" id="modal-confirm-btn">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Export Modal -->
+    <div class="export-modal" id="exportModal">
+        <div class="export-modal-content">
+            <h3>데이터를 복사하여 data.js 파일에 완전히 덮어씌운 후 저장하세요.</h3>
+            <textarea id="exportTextarea" readonly></textarea>
+            <div class="export-modal-actions">
+                <button type="button" class="btn" style="background:#ddd; color:#000;" onclick="document.getElementById('exportModal').style.display='none'">닫기</button>
+                <button type="button" class="btn" id="copyExportBtn">코드 복사하기</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="data.js"></script>
+    <script src="admin.js"></script>
+</body>
+</html>

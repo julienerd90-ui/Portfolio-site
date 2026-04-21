@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JULIENISNERD | Industrial Design</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Custom Cursor -->
+  <div class="cursor"></div>
+
+  <!-- Global Navigation -->
+  <nav class="nav">
+    <a href="index.html" class="logo" style="text-decoration:none; color:inherit;">JULIENISNERD.</a>
+    <div class="menu-links">
+      <a href="index.html">Work</a>
+      <a href="about.html">About</a>
+      <a href="contact.html">Contact</a>
+    </div>
+  </nav>
+
+  <!-- GSAP Pinning Container -->
+  <div class="scroll-container">
+    <div class="vertical-wrapper" id="vertical-wrapper">
+      <!-- Dynamic content injected here by main.js -->
+    </div>
+  </div>
+
+  <!-- GSAP Scripts from CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+  
+  <!-- App Scripts -->
+  <script src="data.js?v=2"></script>
+  <script src="main.js?v=2"></script>
+</body>
+</html>

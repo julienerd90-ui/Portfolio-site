@@ -1,0 +1,253 @@
+/* ═══════════════════════════════════════
+   JULIENISNERD — about.css
+═══════════════════════════════════════ */
+
+body { overflow-x: hidden; overflow-y: auto; }
+
+/* ── Active nav link ── */
+.nav-active { opacity: 0.4; pointer-events: none; }
+
+/* ══════════════════════════════════════
+   1. HERO IMAGE
+══════════════════════════════════════ */
+.about-hero {
+    width: 100vw;
+    height: 90vh;
+    position: relative;
+    overflow: hidden;
+    background: #111;
+}
+
+.about-hero-img-wrapper {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.about-hero-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    display: block;
+    transition: transform 0.8s ease;
+}
+
+/* 이미지가 없을 때 표시되는 플레이스홀더 */
+.about-hero-placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #0e0e0e;
+}
+
+.about-hero-placeholder span {
+    font-size: 18vw;
+    font-weight: 200;
+    color: rgba(255,255,255,0.06);
+    letter-spacing: -4px;
+    user-select: none;
+}
+
+/* ══════════════════════════════════════
+   2. INTRO — Name + Bio (2-column)
+══════════════════════════════════════ */
+.about-intro {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6vw;
+    padding: 12vh 8vw;
+    border-bottom: 1px solid #e8e8e8;
+    align-items: start;
+}
+
+.about-intro-left {
+    position: sticky;
+    top: 14vh;
+}
+
+.about-name {
+    font-size: 4.5vw;
+    font-weight: 200;
+    line-height: 0.88;
+    letter-spacing: -3px;
+    color: #000;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+}
+
+.about-intro-right {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    padding-top: 0;
+}
+
+.about-bio {
+    font-size: 1.2rem;
+    font-weight: 300;
+    line-height: 1.85;
+    color: #222;
+}
+
+/* ══════════════════════════════════════
+   3. CAREER & RECOGNITION
+══════════════════════════════════════ */
+.about-career {
+    padding: 12vh 8vw;
+    border-bottom: 1px solid #e8e8e8;
+}
+
+.about-career-header {
+    margin-bottom: 6vh;
+}
+
+.career-section-title {
+    font-size: 0.8rem;
+    font-weight: 400;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #aaa;
+}
+
+.career-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.career-item {
+    display: grid;
+    grid-template-columns: 80px 1fr auto;
+    align-items: center;
+    gap: 4vw;
+    padding: 28px 0;
+    border-top: 1px solid #eee;
+    transition: background 0.2s;
+}
+
+.career-item:last-child { border-bottom: 1px solid #eee; }
+
+.career-year {
+    font-size: 0.85rem;
+    font-weight: 300;
+    color: #aaa;
+    letter-spacing: 1px;
+    font-variant-numeric: tabular-nums;
+}
+
+.career-body { display: flex; flex-direction: column; gap: 5px; }
+
+.career-title {
+    font-size: 1.1rem;
+    font-weight: 300;
+    color: #000;
+    letter-spacing: 0;
+}
+
+.career-org {
+    font-size: 0.85rem;
+    color: #aaa;
+    font-weight: 300;
+    letter-spacing: 0.5px;
+}
+
+.career-tag {
+    font-size: 0.7rem;
+    font-weight: 400;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #bbb;
+    border: 1px solid #e0e0e0;
+    padding: 4px 10px;
+    white-space: nowrap;
+}
+
+.career-tag--award {
+    border-color: #111;
+    color: #111;
+}
+
+/* ══════════════════════════════════════
+   4. AWARDS & RECOGNITION
+══════════════════════════════════════ */
+.about-awards {
+    padding: 12vh 8vw;
+    border-bottom: 1px solid #e8e8e8;
+}
+
+.about-awards .about-career-header {
+    margin-bottom: 6vh;
+}
+
+/* ══════════════════════════════════════
+   5. FOOTER CTA
+══════════════════════════════════════ */
+.about-footer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 18vh 0;
+    gap: 36px;
+    background-color: #ededed;
+}
+
+.about-footer-text {
+    font-size: 15vw;
+    font-weight: 200;
+    line-height: 0.9;
+    letter-spacing: -4px;
+    margin-bottom: 50px;
+    color: #000;
+}
+
+/* ══════════════════════════════════════
+   MOBILE RESPONSIVE (MAX-WIDTH: 768PX)
+══════════════════════════════════════ */
+@media (max-width: 768px) {
+    /* 1. Intro Section Stack */
+    .about-intro {
+        grid-template-columns: 1fr;
+        gap: 3vh;
+        padding: 8vh 6vw;
+    }
+    .about-intro-left {
+        position: static;
+    }
+    .about-name {
+        font-size: 8vw; /* Scale up slightly for mobile */
+        margin-bottom: 0;
+    }
+    .about-intro-right {
+        padding-top: 0;
+    }
+
+    /* 2. Career & Awards Areas */
+    .about-career {
+        padding: 8vh 6vw;
+    }
+    .career-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    .career-year {
+        width: auto;
+        font-size: 0.9rem;
+    }
+    .career-body {
+        margin-left: 0;
+        margin-bottom: 8px;
+    }
+    .career-tag {
+        margin-left: 0;
+        align-self: flex-start;
+    }
+
+    /* 3. Hero Placeholder Fix */
+    .about-hero-placeholder {
+        font-size: 8vw;
+    }
+}

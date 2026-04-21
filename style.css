@@ -1,0 +1,400 @@
+:root {
+  --bg-color: #fafafa;
+  --text-color: #000;
+  --accent-color: #000;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* Custom Cursor */
+.cursor {
+  width: 20px;
+  height: 20px;
+  background-color: transparent;
+  border: 1.5px solid #fff;
+  border-radius: 50%;
+  position: fixed;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  transition: width 0.3s ease, height 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+  will-change: transform;
+  mix-blend-mode: difference;
+}
+
+.cursor.active {
+  width: 64px;
+  height: 64px;
+  background-color: #fff;
+  border-color: transparent;
+}
+
+/* Navigation */
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  padding: 3vw 4vw;
+  display: flex;
+  justify-content: space-between;
+  z-index: 100;
+  mix-blend-mode: difference;
+  color: #fff;
+}
+
+.logo {
+  font-weight: 300;
+  font-size: 1.2rem;
+  letter-spacing: 2px;
+}
+
+.menu-links {
+  display: flex;
+  gap: 30px;
+}
+
+.menu-links a {
+  color: #fff;
+  text-decoration: none;
+  font-weight: 300;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: none;
+  transition: opacity 0.3s;
+}
+
+.menu-links a:hover {
+  opacity: 0.6;
+}
+
+/* Vertical Scroll Layout */
+.scroll-container {
+  width: 100vw;
+}
+
+.vertical-wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100vw;
+}
+
+.panel {
+  width: 100vw;
+  height: 100vh;
+  flex-shrink: 0;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Hero Section */
+.hero {
+  justify-content: flex-start;
+  align-items: flex-start;
+  /* 텍스트를 좀 더 상단으로 (20vh -> 14vh) */
+  padding: 14vh 10vw 0;
+  /* 상단 여백으로 nav와 간격 확보 */
+  position: relative;
+  z-index: 1;
+  background-color: var(--bg-color);
+}
+
+.hero-text {
+  font-size: 12vw;
+  font-weight: 200;
+  line-height: 0.9;
+  letter-spacing: -4px;
+  z-index: 10;
+  white-space: nowrap;
+}
+
+.hero-img {
+  position: absolute;
+  right: 5vw;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 50vw;
+  max-width: 900px;
+  z-index: 5;
+  filter: drop-shadow(0px 30px 50px rgba(0, 0, 0, 0.1));
+  object-fit: cover;
+}
+
+/* Scroll Indicator */
+.scroll-wrapper {
+  position: absolute;
+  /* 텍스트와 겹치지 않도록 하단으로 바싹 붙임 */
+  bottom: 5vh;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+}
+
+.scroll-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  color: #000;
+}
+
+.scroll-text {
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.scroll-line {
+  width: 1.5px;
+  height: 50px;
+  background-color: #000;
+  position: relative;
+  overflow: hidden;
+}
+
+.scroll-line::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--bg-color);
+  transform: translateY(-100%);
+  animation: scrollLineAnim 1.8s cubic-bezier(0.77, 0, 0.175, 1) infinite;
+}
+
+@keyframes scrollLineAnim {
+  0% { transform: translateY(-100%); }
+  45% { transform: translateY(0); }
+  55% { transform: translateY(0); }
+  100% { transform: translateY(100%); }
+}
+
+/* Projects Gallery (Irregular Grid) */
+.projects-gallery {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  column-gap: 5vw;
+  /* 상하 간격 좁히기 (8.4vw -> 4vw) */
+  row-gap: 4vw;
+  /* 첫 배열과의 간격을 벌리기 위해 padding-top 증가 */
+  padding: 10vw 19vw 10.5vw;
+  position: relative;
+  z-index: 2;
+  /* 살짝 덜 겹치도록 마진 조정 (-20vh -> -15vh) */
+  margin-top: -15vh;
+}
+
+.project {
+  width: 100%;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+.project:nth-child(even) {
+  /* 짝수 번째 썸네일이 내려가는 정도 축소 (17.5vw -> 8vw) */
+  margin-top: 8vw;
+  /* Creates the beautiful staggered irregular look */
+}
+
+/* Thumbnail Interactive Wrapper */
+.thumbnail-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4/5;
+  background: #fdfdfd;
+  overflow: hidden;
+  cursor: none;
+}
+
+.thumbnail-wrapper:hover .project-img {
+  transform: scale(1.05);
+}
+
+.hover-content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.85);
+  /* Clean white glass effect */
+  color: #000;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 4vw;
+  z-index: 20;
+}
+
+.thumbnail-wrapper:hover .hover-content {
+  opacity: 1;
+}
+
+.project-desc {
+  font-weight: 300;
+  font-size: 1.3rem;
+  line-height: 1.7;
+  margin-bottom: 25px;
+  color: #222;
+}
+
+.view-project-label {
+  font-style: italic;
+  font-size: 0.95rem;
+  letter-spacing: 1px;
+  color: #000;
+}
+
+.project-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.8s cubic-bezier(0.2, 1, 0.3, 1);
+  z-index: 5;
+}
+
+/* Bottom Caption */
+.thumbnail-caption {
+  margin-top: 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.project-meta {
+  font-size: 0.85rem;
+  color: #888;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.project-title {
+  font-size: 2.2rem;
+  font-weight: 300;
+  color: #000;
+  text-transform: uppercase;
+  letter-spacing: -1px;
+}
+
+/* Footer Section */
+.footer {
+  flex-direction: column;
+  gap: 60px;
+  background-color: #ededed;
+}
+
+.footer-text {
+  font-size: 15vw;
+  font-weight: 200;
+  line-height: 0.8;
+  text-align: center;
+  letter-spacing: -5px;
+  color: #000;
+}
+
+.contact-btn {
+  color: var(--text-color);
+  text-decoration: none;
+  font-size: 1.5rem;
+  font-weight: 300;
+  border-bottom: 1px solid var(--text-color);
+  padding-bottom: 5px;
+  transition: all 0.4s ease;
+  z-index: 20;
+  cursor: none;
+}
+
+.contact-btn:hover {
+  color: var(--accent-color);
+  border-color: var(--accent-color);
+}
+
+.footer-cta:hover {
+  background: var(--accent-color);
+  color: #fff;
+  border-color: var(--accent-color);
+}
+
+/* ══════════════════════════════════════
+   MOBILE RESPONSIVE (MAX-WIDTH: 768PX)
+══════════════════════════════════════ */
+@media (max-width: 768px) {
+  /* 1. Global & Cursor Disable */
+  body, a, .menu-links a, .thumbnail-wrapper {
+      cursor: auto !important;
+  }
+  .cursor {
+      display: none !important;
+  }
+
+  /* 2. Navigation */
+  .nav {
+      padding: 6vw;
+  }
+  .menu-links {
+      gap: 15px;
+  }
+  .logo {
+      font-size: 1rem;
+      letter-spacing: 1px;
+  }
+
+  /* 3. Hero Section */
+  .hero {
+      padding: 15vh 8vw 0;
+  }
+  .hero-text {
+      font-size: 14vw; /* 방대하게 잘리던 18vw 비율을 14vw로 안전하게 축소 */
+      line-height: 0.95;
+      letter-spacing: -2px;
+  }
+  .scroll-wrapper {
+      bottom: auto; /* 하단 고정 해제 */
+      top: 42vh; /* 히어로 문구 바로 아래에 바싹 붙도록 강제 할당 */
+  }
+  
+  /* 4. Projects Gallery 1-Column */
+  .projects-gallery {
+      grid-template-columns: 1fr;
+      padding: 10vw 8vw 15vw;
+      row-gap: 12vw;
+      margin-top: -38vh; /* 100vh(Hero) 밑에 멀리 있던 갤러리를 강제로 인디케이터 바로 밑까지 멱살잡고 끌어올림 */
+  }
+  .project:nth-child(even) {
+      margin-top: 0; /* Remove stagger offset */
+  }
+
+  /* 5. Mobile Hover Design - 제거 */
+  .hover-content {
+      /* 모바일에서는 불필요한 콘셉트 설명을 없애고 기본 캡션(제목/연도)만 보이도록 함 */
+      display: none !important;
+  }
+  .thumbnail-wrapper {
+      margin-bottom: 3vh;
+  }
+  .project-title {
+      font-size: 1.8rem;
+  }
+}

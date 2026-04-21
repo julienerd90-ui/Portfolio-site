@@ -1,0 +1,249 @@
+body {
+    overflow-x: hidden;
+    overflow-y: auto; 
+}
+
+.back-btn {
+    text-decoration: none;
+    color: #fff;
+    transition: color 0.3s;
+    z-index: 100;
+    cursor: none;
+}
+.back-btn:hover {
+    color: var(--accent-color);
+}
+
+.project-detail-container {
+    width: 100vw;
+    min-height: 100vh;
+    padding-top: 20vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.project-detail-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0 5vw;
+}
+
+.detail-title {
+    font-size: 2.5vw;
+    font-weight: 200;
+    text-transform: uppercase;
+    text-align: center;
+    margin-bottom: 5vh;
+    letter-spacing: -2px;
+    z-index: 10;
+}
+
+/* ── IMAGE CAROUSEL ── */
+.img-carousel-wrapper {
+    width: 92vw;
+    max-width: 1600px;
+    margin: 0 auto;
+    position: relative;
+    padding-bottom: 6vh;
+    overflow: hidden;
+    user-select: none;
+}
+
+.img-carousel {
+    display: flex;
+    transition: transform 0.55s cubic-bezier(0.77, 0, 0.175, 1);
+    will-change: transform;
+    cursor: grab;
+}
+
+.img-carousel.grabbing {
+    cursor: grabbing;
+    transition: none;
+}
+
+.carousel-slide {
+    min-width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0;
+}
+
+.detail-img {
+    width: 100%;
+    height: auto;
+    max-width: 1600px;
+    object-fit: contain;
+    filter: drop-shadow(0px 30px 60px rgba(0,0,0,0.08));
+    display: block;
+    pointer-events: none;
+}
+
+/* Prev / Next buttons */
+.carousel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-60%);
+    background: transparent;
+    border: 1px solid #ccc;
+    color: #111;
+    width: 48px;
+    height: 48px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.25s, border-color 0.2s, background 0.2s;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: inherit;
+}
+.img-carousel-wrapper:hover .carousel-btn { opacity: 1; }
+.carousel-btn:hover { background: #111; color: #fff; border-color: #111; }
+.carousel-btn.hidden { opacity: 0 !important; pointer-events: none; }
+.carousel-prev { left: -64px; }
+.carousel-next { right: -64px; }
+
+/* Dot indicators */
+.carousel-dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 28px;
+}
+.carousel-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #ccc;
+    cursor: pointer;
+    transition: background 0.25s, transform 0.25s;
+}
+.carousel-dot.active {
+    background: #111;
+    transform: scale(1.3);
+}
+
+.project-detail-content {
+    display: flex;
+    justify-content: center;
+    gap: 8vw;
+    padding: 15vh 10vw;
+    background-color: #fff;
+    border-top: 1px solid #eee;
+}
+
+.detail-text-block {
+    flex: 1;
+    max-width: 500px;
+}
+
+.detail-text-block h2 {
+    font-size: 2rem;
+    font-weight: 300;
+    text-transform: uppercase;
+    color: #000; 
+    margin-bottom: 30px;
+    letter-spacing: 1px;
+}
+
+.detail-text-block p {
+    font-size: 1.15rem;
+    line-height: 1.8;
+    color: #000;
+    font-weight: 300;
+}
+
+/* Information: Released Year & Client grid */
+.detail-info-grid {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 14px 32px;
+    margin: 0;
+    padding: 0;
+}
+
+.detail-info-grid dt {
+    font-size: 0.8rem;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #aaa;
+    align-self: center;
+    white-space: nowrap;
+}
+
+.detail-info-grid dd {
+    font-size: 1.1rem;
+    font-weight: 300;
+    color: #000;
+    margin: 0;
+    align-self: center;
+}
+
+.project-detail-footer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20vh 0;
+    gap: 30px;
+    background-color: #f7f7f7;
+}
+
+.project-detail-footer h2 {
+    font-size: 3rem;
+    color: #000;
+    font-weight: 200;
+}
+
+.view-more {
+    font-size: 1.2rem;
+    font-weight: 300;
+    letter-spacing: 2px;
+}
+
+/* ══════════════════════════════════════
+   MOBILE RESPONSIVE (MAX-WIDTH: 768PX)
+══════════════════════════════════════ */
+@media (max-width: 768px) {
+    /* 1. Base Layout */
+    .project-detail-container {
+        padding-top: 15vh;
+    }
+    .project-detail-content {
+        flex-direction: column-reverse; /* Description(우측글)이 위로, Information(좌측사이드바)이 아래로 가도록 세로 배치 */
+        padding: 5vh 6vw 15vh;
+        gap: 12vw;
+    }
+
+    /* 2. Hero Component */
+    .detail-title {
+        font-size: 6vw; /* Increase from tiny 2.5vw to scalable mobile width */
+        margin-bottom: 3vh;
+        letter-spacing: -1px;
+    }
+    .img-carousel-wrapper {
+        width: 100vw;
+        padding-bottom: 4vh;
+    }
+
+    /* 3. Details Stacking */
+    .detail-text-block {
+        gap: 12px;
+    }
+    .detail-info-grid {
+        gap: 14px 16px;
+    }
+
+    /* 4. Footer */
+    .project-detail-footer {
+        padding: 12vh 0;
+    }
+    .project-detail-footer h2 {
+        font-size: 12vw;
+    }
+}
