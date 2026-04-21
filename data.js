@@ -1,10 +1,3 @@
-/*
- * VERCEL DEPLOYMENT BACKUP
- * 
- * 이 코드를 전체 복사하여 기존 data.js 파일 안의 모든 내용을 지우고 붙여넣으세요.
- * (새로 저장한 데이터가 이 템플릿에 구워져 호스팅 환경에서도 기본값으로 동작합니다.)
- */
-
 const defaultProjects = {
     "SE300": {
         "id": "SE300",
@@ -127,4 +120,46 @@ function getAboutData() {
         return parsed;
     }
     return defaultAbout;
+}
+
+/* ── ORDER MANAGEMENT & CRUD (ADMIN USE) ── */
+function getProjectOrder() {
+    const stored = localStorage.getItem('julienisnerd_project_order');
+    if (stored) return JSON.parse(stored);
+    const order = Object.keys(getProjects());
+    saveProjectOrder(order);
+    return order;
+}
+
+function saveProjectOrder(orderArray) {
+    localStorage.setItem('julienisnerd_project_order', JSON.stringify(orderArray));
+}
+
+function addProject(project) {
+    const projects = getProjects();
+    projects[project.id] = project;
+    localStorage.setItem('julienisnerd_projects', JSON.stringify(projects));
+    const order = getProjectOrder();
+    if (!order.includes(project.id)) {
+        order.push(project.id);
+        saveProjectOrder(order);
+    }
+}
+
+function updateProject(project) {
+    const projects = getProjects();
+    projects[project.id] = project;
+    localStorage.setItem('julienisnerd_projects', JSON.stringify(projects));
+}
+
+function deleteProject(id) {
+    const projects = getProjects();
+    delete projects[id];
+    localStorage.setItem('julienisnerd_projects', JSON.stringify(projects));
+    const order = getProjectOrder().filter(oid => oid !== id);
+    saveProjectOrder(order);
+}
+
+function saveAboutData(data) {
+    localStorage.setItem('julienisnerd_about', JSON.stringify(data));
 }
