@@ -125,10 +125,21 @@ function getAboutData() {
 /* ── ORDER MANAGEMENT & CRUD (ADMIN USE) ── */
 function getProjectOrder() {
     const stored = localStorage.getItem('julienisnerd_project_order');
-    if (stored) return JSON.parse(stored);
-    const order = Object.keys(getProjects());
-    saveProjectOrder(order);
-    return order;
+    const projects = getProjects();
+    const projectKeys = Object.keys(projects);
+    
+    if (stored) {
+        let order = JSON.parse(stored);
+        order = order.filter(key => projects[key]);
+        projectKeys.forEach(key => {
+            if (!order.includes(key)) order.push(key);
+        });
+        saveProjectOrder(order);
+        return order;
+    }
+    
+    saveProjectOrder(projectKeys);
+    return projectKeys;
 }
 
 function saveProjectOrder(orderArray) {
