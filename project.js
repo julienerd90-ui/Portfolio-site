@@ -78,22 +78,44 @@ function buildCarousel(imgList) {
 
     // Touch / Mouse drag
     carousel.addEventListener('mousedown', (e) => {
+        if (window.innerWidth <= 768) return;
         isDragging = true;
         dragStartX = e.clientX;
         carousel.classList.add('grabbing');
     });
     window.addEventListener('mouseup', (e) => {
-        if (!isDragging) return;
+        if (window.innerWidth <= 768 || !isDragging) return;
         isDragging = false;
         carousel.classList.remove('grabbing');
         const diff = e.clientX - dragStartX;
         if (Math.abs(diff) > dragThreshold) goTo(currentIndex + (diff < 0 ? 1 : -1));
     });
-    carousel.addEventListener('touchstart', (e) => { dragStartX = e.touches[0].clientX; }, { passive: true });
+    
+    // 모바일 터치는 아예 네이티브(CSS) 스크롤에 양도
+    carousel.addEventListener('touchstart', (e) => { 
+        if (window.innerWidth > 768) dragStartX = e.touches[0].clientX; 
+    }, { passive: true });
+    
     carousel.addEventListener('touchend', (e) => {
+        if (window.innerWidth <= 768) return; 
         const diff = e.changedTouches[0].clientX - dragStartX;
         if (Math.abs(diff) > dragThreshold) goTo(currentIndex + (diff < 0 ? 1 : -1));
     });
+
+    // 모바일 환경에서의 네이티브 스크롤 위치 감지를 통한 하단 점(dot) 실시간 동기화
+    wrapper.addEventListener('scroll', () => {
+        if (window.innerWidth > 768) return;
+        const slideWidth = wrapper.clientWidth;
+        if (slideWidth === 0) return;
+        
+        const newIndex = Math.round(wrapper.scrollLeft / slideWidth);
+        if (newIndex !== currentIndex && newIndex >= 0 && newIndex < images.length) {
+            currentIndex = newIndex;
+            document.querySelectorAll('.carousel-dot').forEach((d, i) => {
+                d.classList.toggle('active', i === currentIndex);
+            });
+        }
+    }, { passive: true });
 
     updateCarousel();
 }
@@ -105,11 +127,18 @@ function goTo(index) {
 
 function updateCarousel() {
     const carousel = document.getElementById('img-carousel');
+    const wrapper  = document.querySelector('.img-carousel-wrapper');
     const prevBtn  = document.getElementById('carousel-prev');
     const nextBtn  = document.getElementById('carousel-next');
     const dots     = document.querySelectorAll('.carousel-dot');
 
-    carousel.style.transform = `translateX(-${currentIndex * 100}%)`;
+    if (window.innerWidth <= 768) {
+        // 모바일에서는 점을 클릭했을 때 네이티브 부드러운 스크롤로 이동
+        wrapper.scrollTo({ left: wrapper.clientWidth * currentIndex, behavior: 'smooth' });
+    } else {
+        // 데스크톱에서는 transform을 활용해 징검다리 애니메이션 재생
+        carousel.style.transform = `translateX(-${currentIndex * 100}%)`;
+    }
 
     dots.forEach((d, i) => d.classList.toggle('active', i === currentIndex));
 

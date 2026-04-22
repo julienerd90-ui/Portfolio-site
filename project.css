@@ -229,6 +229,25 @@ body {
     .img-carousel-wrapper {
         width: 100vw;
         padding-bottom: 4vh;
+        overflow-x: auto;
+        overflow-y: hidden;
+        scroll-snap-type: x mandatory;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+    }
+    .img-carousel-wrapper::-webkit-scrollbar {
+        display: none;
+    }
+    .img-carousel {
+        transform: none !important; /* JS 관여 배제 */
+        transition: none !important; /* JS 관여 배제 */
+    }
+    .carousel-slide {
+        scroll-snap-align: center;
+        flex-shrink: 0; /* 슬라이드 압축 방지 */
+    }
+    .carousel-btn {
+        display: none !important; /* 모바일에서는 직관적인 제스처를 사용하므로 화살표 숨김 */
     }
 
     /* 3. Details Stacking */
