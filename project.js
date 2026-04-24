@@ -103,12 +103,12 @@ function buildCarousel(imgList) {
     });
 
     // 모바일 환경에서의 네이티브 스크롤 위치 감지를 통한 하단 점(dot) 실시간 동기화
-    wrapper.addEventListener('scroll', () => {
+    carousel.addEventListener('scroll', () => {
         if (window.innerWidth > 768) return;
-        const slideWidth = wrapper.clientWidth;
+        const slideWidth = carousel.clientWidth;
         if (slideWidth === 0) return;
         
-        const newIndex = Math.round(wrapper.scrollLeft / slideWidth);
+        const newIndex = Math.round(carousel.scrollLeft / slideWidth);
         if (newIndex !== currentIndex && newIndex >= 0 && newIndex < images.length) {
             currentIndex = newIndex;
             document.querySelectorAll('.carousel-dot').forEach((d, i) => {
@@ -134,7 +134,7 @@ function updateCarousel() {
 
     if (window.innerWidth <= 768) {
         // 모바일에서는 점을 클릭했을 때 네이티브 부드러운 스크롤로 이동
-        wrapper.scrollTo({ left: wrapper.clientWidth * currentIndex, behavior: 'smooth' });
+        carousel.scrollTo({ left: carousel.clientWidth * currentIndex, behavior: 'smooth' });
     } else {
         // 데스크톱에서는 transform을 활용해 징검다리 애니메이션 재생
         carousel.style.transform = `translateX(-${currentIndex * 100}%)`;
