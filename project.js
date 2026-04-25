@@ -19,10 +19,10 @@ let currentIndex = 0;
 let images = [];
 let isDragging = false;
 let dragStartX = 0;
-// 스와이프 및 드래그 반응 감도: 기존 50px에서 100px로 늘려 둔감하게 조정
 let dragThreshold = 100;
-// 휠 스크롤 연속 발생 방지용 쿨다운 타이머
 let lastWheelTime = 0;
+
+function isMobile() { return window.innerWidth <= 768; }
 
 function buildCarousel(imgList) {
     images = imgList;
@@ -76,46 +76,88 @@ function buildCarousel(imgList) {
         }
     }, { passive: false });
 
-    // Touch / Mouse drag
+    // ── Desktop: Mouse drag ──
     carousel.addEventListener('mousedown', (e) => {
-        if (window.innerWidth <= 768) return;
+        if (isMobile()) return;
         isDragging = true;
         dragStartX = e.clientX;
         carousel.classList.add('grabbing');
     });
     window.addEventListener('mouseup', (e) => {
-        if (window.innerWidth <= 768 || !isDragging) return;
+        if (isMobile() || !isDragging) return;
         isDragging = false;
         carousel.classList.remove('grabbing');
         const diff = e.clientX - dragStartX;
         if (Math.abs(diff) > dragThreshold) goTo(currentIndex + (diff < 0 ? 1 : -1));
     });
-    
-    // 모바일 터치는 아예 네이티브(CSS) 스크롤에 양도
-    carousel.addEventListener('touchstart', (e) => { 
-        if (window.innerWidth > 768) dragStartX = e.touches[0].clientX; 
-    }, { passive: true });
-    
-    carousel.addEventListener('touchend', (e) => {
-        if (window.innerWidth <= 768) return; 
-        const diff = e.changedTouches[0].clientX - dragStartX;
-        if (Math.abs(diff) > dragThreshold) goTo(currentIndex + (diff < 0 ? 1 : -1));
-    });
 
-    // 모바일 환경에서의 네이티브 스크롤 위치 감지를 통한 하단 점(dot) 실시간 동기화
-    carousel.addEventListener('scroll', () => {
-        if (window.innerWidth > 768) return;
-        const slideWidth = carousel.clientWidth;
-        if (slideWidth === 0) return;
-        
-        const newIndex = Math.round(carousel.scrollLeft / slideWidth);
-        if (newIndex !== currentIndex && newIndex >= 0 && newIndex < images.length) {
-            currentIndex = newIndex;
-            document.querySelectorAll('.carousel-dot').forEach((d, i) => {
-                d.classList.toggle('active', i === currentIndex);
-            });
-        }
+    // ── Mobile: Real-time finger-tracking touch engine ──
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchCurrentX = 0;
+    let touchLocked = false;   // 가로 스와이프로 확정되었는지
+    let touchCancelled = false; // 세로 스크롤로 판명 → 터치 무시
+
+    carousel.addEventListener('touchstart', (e) => {
+        if (!isMobile()) { dragStartX = e.touches[0].clientX; return; }
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+        touchCurrentX = touchStartX;
+        touchLocked = false;
+        touchCancelled = false;
+        // 손가락이 닿는 순간 transition 끄기 (실시간 추적 모드)
+        carousel.style.transition = 'none';
     }, { passive: true });
+
+    carousel.addEventListener('touchmove', (e) => {
+        if (!isMobile() || touchCancelled) return;
+        const x = e.touches[0].clientX;
+        const y = e.touches[0].clientY;
+        const deltaX = x - touchStartX;
+        const deltaY = y - touchStartY;
+
+        // 아직 방향이 확정되지 않았으면 판별
+        if (!touchLocked) {
+            // 충분한 이동 거리(10px)가 될 때까지 기다림
+            if (Math.abs(deltaX) < 10 && Math.abs(deltaY) < 10) return;
+            if (Math.abs(deltaY) > Math.abs(deltaX)) {
+                // 세로 이동이 더 큼 → 페이지 스크롤로 양보
+                touchCancelled = true;
+                return;
+            }
+            // 가로 이동이 더 큼 → 캐러셀 스와이프 확정
+            touchLocked = true;
+        }
+
+        // 가로 스와이프 확정 → 세로 페이지 스크롤 차단
+        e.preventDefault();
+        touchCurrentX = x;
+
+        // 현재 슬라이드 기준점 + 손가락 이동량 = 실시간 위치
+        const baseOffset = -currentIndex * carousel.clientWidth;
+        const fingerOffset = touchCurrentX - touchStartX;
+        carousel.style.transform = `translateX(${baseOffset + fingerOffset}px)`;
+    }, { passive: false });
+
+    carousel.addEventListener('touchend', (e) => {
+        if (!isMobile()) {
+            const diff = e.changedTouches[0].clientX - dragStartX;
+            if (Math.abs(diff) > dragThreshold) goTo(currentIndex + (diff < 0 ? 1 : -1));
+            return;
+        }
+        if (touchCancelled) return;
+
+        const diff = touchCurrentX - touchStartX;
+        // 부드러운 착지 애니메이션 켜기
+        carousel.style.transition = 'transform 0.35s cubic-bezier(0.25, 1, 0.5, 1)';
+
+        // 40px 이상 밀었으면 다음/이전 슬라이드, 아니면 제자리
+        if (Math.abs(diff) > 40) {
+            goTo(currentIndex + (diff < 0 ? 1 : -1));
+        } else {
+            goTo(currentIndex); // 제자리 스냅
+        }
+    });
 
     updateCarousel();
 }
@@ -127,18 +169,13 @@ function goTo(index) {
 
 function updateCarousel() {
     const carousel = document.getElementById('img-carousel');
-    const wrapper  = document.querySelector('.img-carousel-wrapper');
     const prevBtn  = document.getElementById('carousel-prev');
     const nextBtn  = document.getElementById('carousel-next');
     const dots     = document.querySelectorAll('.carousel-dot');
 
-    if (window.innerWidth <= 768) {
-        // 모바일에서는 점을 클릭했을 때 네이티브 부드러운 스크롤로 이동
-        carousel.scrollTo({ left: carousel.clientWidth * currentIndex, behavior: 'smooth' });
-    } else {
-        // 데스크톱에서는 transform을 활용해 징검다리 애니메이션 재생
-        carousel.style.transform = `translateX(-${currentIndex * 100}%)`;
-    }
+    // 모바일/데스크톱 모두 transform 사용 (통일)
+    const offset = -currentIndex * 100;
+    carousel.style.transform = `translateX(${offset}%)`;
 
     dots.forEach((d, i) => d.classList.toggle('active', i === currentIndex));
 

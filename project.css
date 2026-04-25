@@ -229,25 +229,16 @@ body {
     .img-carousel-wrapper {
         width: 100vw;
         padding-bottom: 4vh;
-        overflow: hidden; /* 모바일에서는 wrapper가 스크롤하지 않음 */
+        overflow: hidden;
+        touch-action: pan-y; /* 세로 스크롤은 브라우저에 맡기고, 가로 터치는 JS가 제어 */
     }
     .img-carousel {
-        transform: none !important;
-        transition: none !important;
-        overflow-x: auto; /* 진짜 스와이프 컨테이너 */
-        overflow-y: hidden;
-        scroll-snap-type: x mandatory;
-        scrollbar-width: none;
-        -webkit-overflow-scrolling: touch;
         display: flex;
-    }
-    .img-carousel::-webkit-scrollbar {
-        display: none;
+        /* JS가 직접 transform을 제어 — transition은 touchend 시에만 JS로 켜짐 */
     }
     .carousel-slide {
-        scroll-snap-align: center;
         flex-shrink: 0;
-        width: 100vw; /* 명시적 너비 강제 */
+        width: 100vw;
     }
     .carousel-btn {
         display: none !important;
