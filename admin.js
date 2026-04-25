@@ -479,3 +479,96 @@ function showAboutStatus(msg, type) {
     el.className = type;
     setTimeout(() => { el.textContent = ''; el.className = ''; }, 3500);
 }
+
+/* ── DATA EXPORT FOR VERCEL DEPLOYMENT ── */
+document.getElementById('exportDataBtn').addEventListener('click', () => {
+    // 1. Get exact current state from `getProjects()` and `getAboutData()`
+    const currentProjects = getProjects();
+    const currentAbout = getAboutData();
+    
+    // 2. Format JS code string exactly as they should be pasted into data.js
+    let exportString = "/*\n * VERCEL DEPLOYMENT BACKUP\n * \n * 이 코드를 전체 복사하여 기존 data.js 파일 안의 모든 내용을 지우고 붙여넣으세요.\n * (새로 저장한 데이터가 이 템플릿에 구워져 호스팅 환경에서도 기본값으로 동작합니다.)\n */\n\n";
+    
+    exportString += "const defaultProjects = " + JSON.stringify(currentProjects, null, 4) + ";\n\n";
+    exportString += "const defaultAbout = " + JSON.stringify(currentAbout, null, 4) + ";\n\n";
+    exportString += "/* --- 아래 코드 수정 금지 --- */\n";
+    exportString += "function getProjects() {\n";
+    exportString += "    const stored = localStorage.getItem('julienisnerd_projects_v2');\n";
+    exportString += "    return stored ? JSON.parse(stored) : defaultProjects;\n";
+    exportString += "}\n\n";
+    exportString += "function getAboutData() {\n";
+    exportString += "    const stored = localStorage.getItem('julienisnerd_about_v2');\n";
+    exportString += "    if (stored) {\n";
+    exportString += "        const parsed = JSON.parse(stored);\n";
+    exportString += "        if (!parsed.awards || parsed.awards.length === 0) {\n";
+    exportString += "            parsed.awards = defaultAbout.awards;\n";
+    exportString += "        }\n";
+    exportString += "        return parsed;\n";
+    exportString += "    }\n";
+    exportString += "    return defaultAbout;\n";
+    exportString += "}\n\n";
+    
+    exportString += "/* ── ORDER MANAGEMENT & CRUD (ADMIN USE) ── */\n";
+    exportString += "function getProjectOrder() {\n";
+    exportString += "    const stored = localStorage.getItem('julienisnerd_project_order_v2');\n";
+    exportString += "    const projects = getProjects();\n";
+    exportString += "    const projectKeys = Object.keys(projects);\n";
+    exportString += "    \n";
+    exportString += "    if (stored) {\n";
+    exportString += "        let order = JSON.parse(stored);\n";
+    exportString += "        // 1. 유령 키(삭제되었는데 순서에만 남은 키) 제거\n";
+    exportString += "        order = order.filter(key => projects[key]);\n";
+    exportString += "        // 2. 새로 추가된 키(순서에 없는 키)를 배열 끝에 추가\n";
+    exportString += "        projectKeys.forEach(key => {\n";
+    exportString += "            if (!order.includes(key)) order.push(key);\n";
+    exportString += "        });\n";
+    exportString += "        saveProjectOrder(order);\n";
+    exportString += "        return order;\n";
+    exportString += "    }\n";
+    exportString += "    saveProjectOrder(projectKeys);\n";
+    exportString += "    return projectKeys;\n";
+    exportString += "}\n\n";
+    exportString += "function saveProjectOrder(orderArray) {\n";
+    exportString += "    localStorage.setItem('julienisnerd_project_order_v2', JSON.stringify(orderArray));\n";
+    exportString += "}\n\n";
+    exportString += "function addProject(project) {\n";
+    exportString += "    const projects = getProjects();\n";
+    exportString += "    projects[project.id] = project;\n";
+    exportString += "    localStorage.setItem('julienisnerd_projects_v2', JSON.stringify(projects));\n";
+    exportString += "    const order = getProjectOrder();\n";
+    exportString += "    if (!order.includes(project.id)) {\n";
+    exportString += "        order.push(project.id);\n";
+    exportString += "        saveProjectOrder(order);\n";
+    exportString += "    }\n";
+    exportString += "}\n\n";
+    exportString += "function updateProject(project) {\n";
+    exportString += "    const projects = getProjects();\n";
+    exportString += "    projects[project.id] = project;\n";
+    exportString += "    localStorage.setItem('julienisnerd_projects_v2', JSON.stringify(projects));\n";
+    exportString += "}\n\n";
+    exportString += "function deleteProject(id) {\n";
+    exportString += "    const projects = getProjects();\n";
+    exportString += "    delete projects[id];\n";
+    exportString += "    localStorage.setItem('julienisnerd_projects_v2', JSON.stringify(projects));\n";
+    exportString += "    const order = getProjectOrder().filter(oid => oid !== id);\n";
+    exportString += "    saveProjectOrder(order);\n";
+    exportString += "}\n\n";
+    exportString += "function saveAboutData(data) {\n";
+    exportString += "    localStorage.setItem('julienisnerd_about_v2', JSON.stringify(data));\n";
+    exportString += "}\n";
+
+    // 3. Show inside textarea modal
+    document.getElementById('exportTextarea').value = exportString;
+    document.getElementById('exportModal').style.display = 'flex';
+});
+
+document.getElementById('copyExportBtn').addEventListener('click', () => {
+    const textarea = document.getElementById('exportTextarea');
+    textarea.select();
+    textarea.setSelectionRange(0, 999999); // for Mobile
+    navigator.clipboard.writeText(textarea.value).then(() => {
+        alert("코드가 복사되었습니다! data.js 파일 전체를 선택(Cmd+A)하고 붙여넣기(Cmd+V)하여 덮어씌워주세요.");
+    }).catch(err => {
+        alert("복사 실패 ㅠㅠ 브라우저 권한을 확인하거나 텍스트를 직접 드래그해서 복사해주세요.");
+    });
+});

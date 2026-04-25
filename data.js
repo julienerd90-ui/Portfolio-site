@@ -106,12 +106,12 @@ const defaultAbout = {
 
 /* --- 아래 코드 수정 금지 --- */
 function getProjects() {
-    const stored = localStorage.getItem('julienisnerd_projects');
+    const stored = localStorage.getItem('julienisnerd_projects_v2');
     return stored ? JSON.parse(stored) : defaultProjects;
 }
 
 function getAboutData() {
-    const stored = localStorage.getItem('julienisnerd_about');
+    const stored = localStorage.getItem('julienisnerd_about_v2');
     if (stored) {
         const parsed = JSON.parse(stored);
         if (!parsed.awards || parsed.awards.length === 0) {
@@ -124,7 +124,7 @@ function getAboutData() {
 
 /* ── ORDER MANAGEMENT & CRUD (ADMIN USE) ── */
 function getProjectOrder() {
-    const stored = localStorage.getItem('julienisnerd_project_order');
+    const stored = localStorage.getItem('julienisnerd_project_order_v2');
     const projects = getProjects();
     const projectKeys = Object.keys(projects);
     
@@ -143,13 +143,13 @@ function getProjectOrder() {
 }
 
 function saveProjectOrder(orderArray) {
-    localStorage.setItem('julienisnerd_project_order', JSON.stringify(orderArray));
+    localStorage.setItem('julienisnerd_project_order_v2', JSON.stringify(orderArray));
 }
 
 function addProject(project) {
     const projects = getProjects();
     projects[project.id] = project;
-    localStorage.setItem('julienisnerd_projects', JSON.stringify(projects));
+    localStorage.setItem('julienisnerd_projects_v2', JSON.stringify(projects));
     const order = getProjectOrder();
     if (!order.includes(project.id)) {
         order.push(project.id);
@@ -160,17 +160,17 @@ function addProject(project) {
 function updateProject(project) {
     const projects = getProjects();
     projects[project.id] = project;
-    localStorage.setItem('julienisnerd_projects', JSON.stringify(projects));
+    localStorage.setItem('julienisnerd_projects_v2', JSON.stringify(projects));
 }
 
 function deleteProject(id) {
     const projects = getProjects();
     delete projects[id];
-    localStorage.setItem('julienisnerd_projects', JSON.stringify(projects));
+    localStorage.setItem('julienisnerd_projects_v2', JSON.stringify(projects));
     const order = getProjectOrder().filter(oid => oid !== id);
     saveProjectOrder(order);
 }
 
 function saveAboutData(data) {
-    localStorage.setItem('julienisnerd_about', JSON.stringify(data));
+    localStorage.setItem('julienisnerd_about_v2', JSON.stringify(data));
 }
