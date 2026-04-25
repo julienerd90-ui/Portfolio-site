@@ -230,15 +230,25 @@ body {
         width: 100vw;
         padding-bottom: 4vh;
         overflow: hidden;
-        touch-action: pan-y; /* 세로 스크롤은 브라우저에 맡기고, 가로 터치는 JS가 제어 */
+        overscroll-behavior-x: contain; /* iOS rubber-band가 페이지로 새는 것 차단 */
+    }
+    /* touch-action은 상속되지 않음 → 터치가 닿는 모든 후손에 명시 */
+    .img-carousel-wrapper,
+    .img-carousel,
+    .carousel-slide,
+    .detail-img {
+        touch-action: pan-y; /* 세로 스크롤만 브라우저, 가로는 JS */
     }
     .img-carousel {
         display: flex;
-        /* JS가 직접 transform을 제어 — transition은 touchend 시에만 JS로 켜짐 */
+        transition: none; /* JS가 touchend에서만 transition을 켜고 끔 */
     }
     .carousel-slide {
         flex-shrink: 0;
         width: 100vw;
+    }
+    .detail-img {
+        pointer-events: auto; /* 터치 타겟이 이미지 자신이 되도록 통일 */
     }
     .carousel-btn {
         display: none !important;
