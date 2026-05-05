@@ -13,8 +13,8 @@ function checkPassword() {
         document.getElementById('password-overlay').style.display = 'none';
         const panel = document.getElementById('adminWrapper');
         panel.style.display = 'flex';
-        setImageFields([]);
-        addImageField();
+        setBlocks([]);
+        addBlockField('image');
         renderProjectList();
         initAboutEditor();    // About 에디터 초기화
     } else {
@@ -30,64 +30,76 @@ document.getElementById('pw-input').addEventListener('keypress', function (e) {
     if (e.key === 'Enter') checkPassword();
 });
 
-/* ── MULTI-IMAGE FIELD MANAGEMENT ── */
-function addImageField(url = '') {
-    const list = document.getElementById('img-url-list');
+/* ── MULTI-CONTENT FIELD MANAGEMENT (Images & Text) ── */
+function addBlockField(type = 'image', content = '') {
+    const list = document.getElementById('content-list');
     const row = document.createElement('div');
-    row.className = 'img-url-row';
+    row.className = `content-row type-${type}`;
     row.draggable = true;
-    row.innerHTML = `
-        <span class="drag-handle" title="Drag to reorder">⠿</span>
-        <img class="img-mini-preview" src="" alt="">
-        <input type="url" placeholder="https://raw.githubusercontent.com/..." value="${url}"
-               oninput="updateMiniPreview(this)">
-        <button type="button" class="remove-img-btn" onclick="removeImageField(this)" title="Remove">&#215;</button>
-    `;
+    
+    if (type === 'image') {
+        row.innerHTML = `
+            <span class="drag-handle" title="Drag to reorder">⠿</span>
+            <img class="img-mini-preview" src="" alt="">
+            <input type="url" placeholder="https://raw.githubusercontent.com/..." value="${content}"
+                   oninput="updateMiniPreview(this)">
+            <button type="button" class="remove-btn" onclick="removeBlockField(this)" title="Remove">&#215;</button>
+        `;
+    } else {
+        row.innerHTML = `
+            <span class="drag-handle" title="Drag to reorder">⠿</span>
+            <textarea placeholder="텍스트 문단을 입력하세요...">${content}</textarea>
+            <button type="button" class="remove-btn" onclick="removeBlockField(this)" title="Remove">&#215;</button>
+        `;
+    }
+    
     list.appendChild(row);
 
-    const input = row.querySelector('input');
-    if (url) updateMiniPreview(input);
+    if (type === 'image' && content) {
+        const input = row.querySelector('input');
+        updateMiniPreview(input);
+    }
 
     // 드래그 앤 드롭 이벤트 추가
     row.addEventListener('dragstart', function(e) {
-        window.draggedImgRow = this;
+        window.draggedBlockRow = this;
         this.classList.add('dragging');
         e.dataTransfer.effectAllowed = 'move';
     });
 
     row.addEventListener('dragend', function() {
         this.classList.remove('dragging');
-        document.querySelectorAll('.img-url-row').forEach(r => r.classList.remove('drag-over'));
-        window.draggedImgRow = null;
+        document.querySelectorAll('.content-row').forEach(r => r.classList.remove('drag-over'));
+        window.draggedBlockRow = null;
     });
 
     row.addEventListener('dragover', function(e) {
         e.preventDefault();
         e.dataTransfer.dropEffect = 'move';
-        document.querySelectorAll('.img-url-row').forEach(r => r.classList.remove('drag-over'));
+        document.querySelectorAll('.content-row').forEach(r => r.classList.remove('drag-over'));
         this.classList.add('drag-over');
     });
 
     row.addEventListener('drop', function(e) {
         e.preventDefault();
         this.classList.remove('drag-over');
-        if (window.draggedImgRow && window.draggedImgRow !== this) {
+        if (window.draggedBlockRow && window.draggedBlockRow !== this) {
             const parentList = this.parentNode;
             const allRows = Array.from(parentList.children);
-            const draggedIdx = allRows.indexOf(window.draggedImgRow);
+            const draggedIdx = allRows.indexOf(window.draggedBlockRow);
             const targetIdx = allRows.indexOf(this);
             
             if (draggedIdx < targetIdx) {
-                parentList.insertBefore(window.draggedImgRow, this.nextSibling);
+                parentList.insertBefore(window.draggedBlockRow, this.nextSibling);
             } else {
-                parentList.insertBefore(window.draggedImgRow, this);
+                parentList.insertBefore(window.draggedBlockRow, this);
             }
         }
     });
 }
 
 function updateMiniPreview(input) {
-    const preview = input.closest('.img-url-row').querySelector('.img-mini-preview');
+    const preview = input.closest('.content-row').querySelector('.img-mini-preview');
     const url = input.value.trim();
     if (url.startsWith('http')) {
         preview.src = url;
@@ -98,22 +110,33 @@ function updateMiniPreview(input) {
     }
 }
 
-function removeImageField(btn) {
-    const list = document.getElementById('img-url-list');
+function removeBlockField(btn) {
+    const list = document.getElementById('content-list');
     if (list.children.length <= 1) return; // 최소 1개 유지
-    btn.closest('.img-url-row').remove();
+    btn.closest('.content-row').remove();
 }
 
-function getImageUrls() {
-    return Array.from(document.querySelectorAll('#img-url-list input'))
-        .map(i => i.value.trim())
-        .filter(Boolean);
+function getBlocks() {
+    return Array.from(document.querySelectorAll('#content-list .content-row')).map(row => {
+        if (row.classList.contains('type-image')) {
+            return row.querySelector('input').value.trim();
+        } else {
+            const text = row.querySelector('textarea').value.trim();
+            return text ? 'TEXT:' + text : '';
+        }
+    }).filter(Boolean);
 }
 
-function setImageFields(images) {
-    document.getElementById('img-url-list').innerHTML = '';
-    const list = (images && images.length > 0) ? images : [''];
-    list.forEach(url => addImageField(url));
+function setBlocks(blocks) {
+    document.getElementById('content-list').innerHTML = '';
+    const list = (blocks && blocks.length > 0) ? blocks : [''];
+    list.forEach(val => {
+        if (val.startsWith('TEXT:')) {
+            addBlockField('text', val.substring(5));
+        } else {
+            addBlockField('image', val);
+        }
+    });
 }
 
 
@@ -217,9 +240,9 @@ function loadProjectToForm(id) {
     document.getElementById('p-client').value = p.client;
     document.getElementById('p-concept').value = p.concept;
 
-    // 이미지 배열 로드 (images 필드 우선, 없으면 img 단일 이미지)
-    const imgs = (p.images && p.images.length > 0) ? p.images : (p.img ? [p.img] : []);
-    setImageFields(imgs);
+    // 이미지/텍스트 블록 로드
+    const blocks = (p.images && p.images.length > 0) ? p.images : (p.img ? [p.img] : []);
+    setBlocks(blocks);
 
     // Switch UI to edit mode
     document.getElementById('form-mode-label').textContent = 'Edit Project';
@@ -245,8 +268,8 @@ function clearForm() {
     document.getElementById('p-year').value = '';
     document.getElementById('p-client').value = '';
     document.getElementById('p-concept').value = '';
-    setImageFields([]);
-    addImageField();
+    setBlocks([]);
+    addBlockField('image');
     document.getElementById('form-mode-label').textContent = 'Add New Project';
     document.getElementById('submit-btn').textContent = 'Publish Project';
     document.getElementById('cancel-btn').style.display = 'none';
@@ -260,17 +283,20 @@ function saveProject() {
     const year = document.getElementById('p-year').value.trim();
     const client = document.getElementById('p-client').value.trim();
     const concept = document.getElementById('p-concept').value.trim();
-    const images = getImageUrls();
+    const images = getBlocks();
 
     if (!id || !title || !year || !client || !concept || images.length === 0) {
-        showStatus('Please fill in all required fields and add at least one image.', 'error');
+        showStatus('Please fill in all required fields and add at least one block.', 'error');
         return;
     }
+
+    // 갤러리 썸네일은 가장 첫 번째 나오는 이미지 URL로 지정
+    const firstImg = images.find(b => !b.startsWith('TEXT:')) || '';
 
     const project = {
         id, title, year, client, concept,
         images,
-        img: images[0]  // 첫 번째 이미지 = 갤러리 썸네일
+        img: firstImg
     };
 
     if (editingId) {

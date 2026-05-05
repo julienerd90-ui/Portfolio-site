@@ -21,18 +21,17 @@
     </nav>
 
     <div class="project-detail-container">
+        <!-- 1. 타이틀 -->
         <div class="project-detail-hero">
             <h1 id="detail-title" class="detail-title">Loading...</h1>
-        <div class="img-carousel-wrapper">
-                <div class="img-carousel" id="img-carousel">
-                    <!-- Images injected by project.js -->
-                </div>
-                <button class="carousel-btn carousel-prev" id="carousel-prev" aria-label="Previous image">&#8592;</button>
-                <button class="carousel-btn carousel-next" id="carousel-next" aria-label="Next image">&#8594;</button>
-                <div class="carousel-dots" id="carousel-dots"></div>
-            </div>
+        </div>
+
+        <!-- 2. 메인 이미지 -->
+        <div class="project-main-image" id="main-image-container">
+            <!-- Injected by project.js -->
         </div>
         
+        <!-- 3. 기본 정보 (Description & Info) -->
         <div class="project-detail-content">
             <div class="detail-text-block">
                 <h2>Description</h2>
@@ -47,6 +46,11 @@
                     <dd id="detail-client">—</dd>
                 </dl>
             </div>
+        </div>
+
+        <!-- 2. 순차적으로 로드될 이미지 & 텍스트 블록들 -->
+        <div class="project-blocks" id="project-blocks">
+            <!-- Injected by project.js -->
         </div>
 
         <div class="project-detail-footer">
